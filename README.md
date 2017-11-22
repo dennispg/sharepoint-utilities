@@ -3,13 +3,11 @@ A set of convenience methods for SharePoint.
 
 Installing
 ---
-
 `npm install sharepoint-utilities`.
 
 Extensions
 ----
-
-This package provides a set of extensions to SharePoint's JS Object Model to make development slightly less tedious.
+This package provides a set of extensions to SharePoint's JavaScript Object Model to make development slightly less tedious. These include collection methods similar to those available from `lodash`.
 
 Reference
 ----
@@ -106,10 +104,21 @@ Execute a callback for every element in the matched set.
 
 **Example**
 ```typescript
+// instead of:
 let items = list.getItems();
-items.each((i, item) => { item.get_item('Title'); });
+var enumerator = items.getEnumerator();
+while(enumerator.moveNext()) {
+    var item = enumerator.get_current();
+    console.log(item.get_title());
+}
 ```
-
+```typescript
+// use this:
+let items = list.getItems();
+items.each(function(i, item) {
+    console.log(item.get_title());
+});
+```
 ## SP.ClientObjectCollection<T>.every
 Tests whether every element in the collection passes the test implemented by the provided function.
 
@@ -156,7 +165,7 @@ while(enumerator.moveNext()) {
 }
 ```
 ```typescript
-// use this
+// use this:
 let items = list.getItems();
 var transformed = items.map(function(item, i) {
     return { title: item.get_title() };
