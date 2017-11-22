@@ -37,11 +37,17 @@ declare interface IEnumerable<T> {
      * @returns true if the callback */
     find?(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): T;
 
+    filter(predicate: filterPredicate<T>): T[]
+
     /** Returns the first element in the collection or null if none
      * @param iteratee An optional function to filter by
      * @return Returns the first item in the collection */
     firstOrDefault?(iteratee?: (item?: T) => boolean): T;
 }
+
+type filterPredicateFunction<T> = (item: T, index?: number) => boolean;
+type filterPredicate<T> = filterPredicateFunction<T> | {[prop: string]:any} | string;
+
 declare global {
     namespace SP {
         export interface SOD {

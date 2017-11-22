@@ -1,3 +1,6 @@
+type filterPredicateFunction<T> = (item: T, index?: number) => boolean;
+type filterPredicate<T> = filterPredicateFunction<T> | {[prop: string]:any} | string;
+
 class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
     /** Execute a callback for every element in the matched set.
     @param callback The function that will called for each element, and passed an index and the element itself */
@@ -66,6 +69,40 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
             }
         });
         return hasitems && val;
+    }
+
+    filter(predicate: filterPredicate<T>): T[] {
+        var items = [];
+        var predicateType = Object.prototype.toString.call(predicate);
+        switch(predicateType) {
+            case '[object Function]':
+                this.each((i, item) => {
+                    if((<filterPredicateFunction<T>>predicate)(item, i))
+                        items.push(item);
+                });
+                break;
+            case 'object':
+                this.each((i, item) => {
+                    for(var prop in (<{[prop: string]:any}>predicate)) {
+                        if(
+                            (item instanceof SP.ListItem && (item.get_item(prop) == predicate[prop]))
+                            || item[prop] == predicate[prop]
+                        )
+                            items.push(item);
+                    }
+                });
+                break;
+            case 'string':
+                this.each((i, item) => {
+                    if(
+                        (item instanceof SP.ListItem && item.get_item(<string> predicate))
+                        || item[<string> predicate]
+                    )
+                        items.push(item);
+                });
+                break;
+        }
+        return items;
     }
 
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
