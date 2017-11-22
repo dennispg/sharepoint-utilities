@@ -17,7 +17,7 @@ Reference
 -   [`SP.ClientContext.executeQuery`](#spclientcontextexecutequery)
 -   [`SP.List.get_queryResult`](#splistget_queryresult)
 -   [`SP.Guid.generateGuid`](#spguidgenerateguid)
--   [`SP.ClientObjectCollection<T>.map`](#spclientobjectcollectioneach)
+-   [`SP.ClientObjectCollection<T>.each`](#spclientobjectcollectioneach)
 -   [`SP.ClientObjectCollection<T>.every`](#spclientobjectcollectionevery)
 -   [`SP.ClientObjectCollection<T>.find`](#spclientobjectcollectionfind)
 -   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientobjectcollectionfirstordefault)
