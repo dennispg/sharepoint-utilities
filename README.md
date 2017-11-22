@@ -15,16 +15,17 @@ Reference
 ----
 
 ### Table of contents
--   [`SP.SOD.import`](#SP.SOD.import)
--   [`SP.ClientContext.executeQuery`](#SP.ClientContext.executeQuery)
--   [`SP.Guid.generateGuid`](#SP.Guid.generateGuid)
--   [`SP.ClientObjectCollection<T>.map`](#SP.ClientObjectCollection<T>.each)
--   [`SP.ClientObjectCollection<T>.every`](#SP.ClientObjectCollection<T>.every)
--   [`SP.ClientObjectCollection<T>.find`](#SP.ClientObjectCollection<T>.find)
--   [`SP.ClientObjectCollection<T>.firstOrDefault`](#SP.ClientObjectCollection<T>.firstOrDefault)
--   [`SP.ClientObjectCollection<T>.map`](#SP.ClientObjectCollection<T>.map)
--   [`SP.ClientObjectCollection<T>.some`](#SP.ClientObjectCollection<T>.some)
--   [`SP.ClientObjectCollection<T>.toArray`](#SP.ClientObjectCollection<T>.toArray)
+-   [`SP.SOD.import`](#spsodimport)
+-   [`SP.ClientContext.executeQuery`](#spclientcontextexecutequery)
+-   [`SP.List.get_queryResult`](#splistget_queryresult)
+-   [`SP.Guid.generateGuid`](#spguidgenerateguid)
+-   [`SP.ClientObjectCollection<T>.map`](#spclientObjectcollectioneach)
+-   [`SP.ClientObjectCollection<T>.every`](#spclientObjectcollectionevery)
+-   [`SP.ClientObjectCollection<T>.find`](#spclientObjectcollectionfind)
+-   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientObjectcollectionfirstordefault)
+-   [`SP.ClientObjectCollection<T>.map`](#spclientObjectcollectionmap)
+-   [`SP.ClientObjectCollection<T>.some`](#spclientObjectcollectionsome)
+-   [`SP.ClientObjectCollection<T>.toArray`](#spclientObjectcollectiontoarray)
 
 ## SP.SOD.import
 A wrapper around SharePoint's Script-On-Demand using Promises.
