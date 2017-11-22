@@ -11,133 +11,172 @@ Extensions
 
 This package provides a set of extensions to SharePoint's JS Object Model to make development slightly less tedious.
 
-```typescript
-// A set of convenient extension methods
-declare namespace SP {
-    export interface SOD {
-        import(sod: string | string[]): Promise<any>;
-    }
+Reference
+----
 
-    export interface ClientObjectCollection<T> extends IEnumerable<T> {
-    }
+### Table of contents
+-   [`SP.SOD.import`](#SP.SOD.import)
+-   [`SP.ClientContext.executeQuery`](#SP.ClientContext.executeQuery)
+-   [`SP.Guid.generateGuid`](#SP.Guid.generateGuid)
+-   [`SP.ClientObjectCollection<T>.map`](#SP.ClientObjectCollection<T>.each)
+-   [`SP.ClientObjectCollection<T>.every`](#SP.ClientObjectCollection<T>.every)
+-   [`SP.ClientObjectCollection<T>.find`](#SP.ClientObjectCollection<T>.find)
+-   [`SP.ClientObjectCollection<T>.firstOrDefault`](#SP.ClientObjectCollection<T>.firstOrDefault)
+-   [`SP.ClientObjectCollection<T>.map`](#SP.ClientObjectCollection<T>.map)
+-   [`SP.ClientObjectCollection<T>.some`](#SP.ClientObjectCollection<T>.some)
+-   [`SP.ClientObjectCollection<T>.toArray`](#SP.ClientObjectCollection<T>.toArray)
 
-    export interface ClientRuntimeContext {
-        /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
-        executeQuery(): Promise<ClientRequestSucceededEventArgs>;
-    }
+## SP.SOD.import
+A wrapper around SharePoint's Script-On-Demand using Promises.
 
-    export interface List {
-        /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
-        @param queryText the queryText to use for the query.set_ViewXml() call */
-        get_queryResult(queryText: string): ListItemCollection;
-    }
+**Parameters**
+-   `sod` **(string | string[])** Script or scripts to load from SharePoint
 
-    namespace Guid {
-        export function generateGuid(): string;
-    }
-}
-
-// Collection methods similar to those available from lodash
-declare interface IEnumerable<T> {
-    getEnumerator(): IEnumerator<T>;
-
-    /** Execute a callback for every element in the matched set.
-    @param callback The function that will called for each element, and passed an index and the element itself */
-    each?(callback: (index?: number, item?: T) => void): void;
-
-    /**
-     * Creates an array of values by running each element in collection through iteratee.
-     *
-     * @param iteratee The function invoked per iteration.
-     * @return Returns the new mapped array. */
-    map?<TResult>(iteratee: (item?: T, index?: number) => TResult): TResult[];
-
-    /** Converts a collection to a regular JS array. */
-    toArray?(): T[];
-
-    /** Callback for some collection method
-     * @callback iterateeCallback
-     * @param item The current element being processed in the collection
-     * @param {number} index The index of the current element being processed in the collection
-     * @param collection The collection some() was called upon.
-     */
-
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
-     * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
-    some?(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): boolean;
-
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
-     * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
-    every?(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): boolean;
-
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
-     * @param {iterateeCallback} iteratee Function to execute on each element in the collection
-     * @returns true if the callback */
-    find?(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): T;
-
-    /** Returns the first element in the collection or null if none
-     * @param iteratee An optional function to filter by
-     * @return Returns the first item in the collection */
-    firstOrDefault?(iteratee?: (item?: T) => boolean): T;
-}
-```
-
-Example Usage:
----
-
+**Example**
 ```javascript
-/* instead of:
+// instead of:
 SP.SOD.executeOrDelayUntilScriptLoaded(function() {
-    ...
+    <...>
 }, 'sp.js');
 LoadSodByKey('sp.js');
-*/
+```
+```javascript
+// use this:
 SP.SOD.import('sp.js')
 .then(function() {
-    var context = new SP.ClientContext();
-    var web = context.get_web();
-    var lists = web.get_lists();
-    var list = lists.getByTitle('list_title');
-
-    /* instead of:
-    var query = new SP.CamlQuery();
-    query.set_viewXml('<View><Query><Where><Eq><FieldRef Name="Title"/><Value Type="Text">Hello world!</Value></Eq></Where></Query></View>');
-    var items = list.getItems(query);
-    */
-    var items = list.get_queryResult('<View><Query><Where><Eq><FieldRef Name="Title"/><Value Type="Text">Hello world!</Value></Eq></Where></Query></View>');
-
-    context.load(items);
-
-    /* instead of:
-    context.executeQueryAsync(
-        Function.createDelegate(this, function(sender, args) {
-            ...
-        }),
-        Function.createDelegate(this, function(sender, args) {
-            ...
-        })
-    );
-    */
-    context.executeQuery()
-    .then(function(args) {
-        /* instead of:
-        var transformed = [];
-        var enumerator = items.getEnumerator();
-        while(enumerator.moveNext()) {
-            var item = enumerator.get_current();
-            transformed.push({ title: item.get_title() });
-        }
-        */
-        var transformed = items.map(function(item, i) {
-            return { title: item.get_title() };
-        });
-
-        console.log(transformed);
-    })
-    .catch(function(args) {
-        console.log(args.get_message());
-    });
+    <...>
 });
+```
+
+## SP.ClientContext.executeQuery
+A shorthand for context.executeQueryAsync except wrapped as a Promise object
+
+**Example**
+```javascript
+// instead of:
+var context = new SP.ClientContext();
+context.executeQueryAsync(
+    Function.createDelegate(this, function(sender, args) {
+        <...>
+    }),
+    Function.createDelegate(this, function(sender, args) {
+        <...>
+    })
+);
+```
+```javascript
+// use this:
+var context = new SP.ClientContext();
+context.executeQuery()
+.then(function(args) {
+    <...>
+});
+```
+
+## SP.List.get_queryResult
+Returns a collection of items from the list based on the specified query. A shorthand for SP.List.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
+
+**Parameters**
+-   `queryText` **(string)** The CAML query to call SP.List.getItems with.
+
+Returns an **SP.ListItemCollection**
+
+**Example**
+```javascript
+// instead of:
+var query = new SP.CamlQuery();
+query.set_viewXml('<View><Query><Where><Eq><FieldRef Name="Title"/><Value Type="Text">Hello world!</Value></Eq></Where></Query></View>');
+var items = list.getItems(query);
+```
+```typescript
+/// use this:
+var items = list.get_queryResult('<View><Query><Where><Eq><FieldRef Name="Title"/><Value Type="Text">Hello world!</Value></Eq></Where></Query></View>');
+```
+
+## SP.Guid.generateGuid
+
+**Example**
+```typescript
+let guid = SP.Guid.generateGuid();
+```
+
+## SP.ClientObjectCollection<T>.each
+Execute a callback for every element in the matched set.
+
+**Example**
+```typescript
+let items = list.getItems();
+items.each((i, item) => { item.get_item('Title'); });
+```
+
+## SP.ClientObjectCollection<T>.every
+Tests whether every element in the collection passes the test implemented by the provided function.
+
+**Example**
+```typescript
+let items = list.getItems();
+items.every(item => item.get_item('Title') == "") == false;
+```
+
+## SP.ClientObjectCollection<T>.find
+Finds the first element in the collection which passes the test implemented by the provided function, or null if not found.
+
+**Example**
+```typescript
+let items = list.getItems();
+var found_item = items.find(item => item.get_item('Title') == "");
+```
+
+## SP.ClientObjectCollection<T>.firstOrDefault
+Returns the first element in the collection or null if none
+
+**Example**
+```typescript
+let items = list.getItems();
+var item = items.firstOrDefault();
+if(item != null)
+    console.log('Got the first item in the collection.')
+else
+    console.log('The collection was empty.')
+```
+
+## SP.ClientObjectCollection<T>.map
+Creates an array of values by running each element in collection through iteratee.
+
+**Example**
+```typescript
+// instead of:
+let items = list.getItems();
+var transformed = [];
+var enumerator = items.getEnumerator();
+while(enumerator.moveNext()) {
+    var item = enumerator.get_current();
+    transformed.push({ title: item.get_title() });
+}
+```
+```typescript
+// use this
+let items = list.getItems();
+var transformed = items.map(function(item, i) {
+    return { title: item.get_title() };
+});
+```
+
+## SP.ClientObjectCollection<T>.some
+Tests whether at least one element in the collection passes the test implemented by the provided function.
+
+**Example**
+```typescript
+let items = list.getItems();
+if (items.some((item, i, items) => item.get_item('Title') == ""))
+    console.log('Found an empty title.');
+```
+
+## SP.ClientObjectCollection<T>.toArray
+Converts a collection to regular **Array**
+
+**Example**
+```typescript
+let items = list.getItems();
+let item_array = items.toArray();
 ```
