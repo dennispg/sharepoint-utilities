@@ -1,0 +1,27 @@
+{
+  "name": "sharepoint-utilities",
+  "version": "1.0.0",
+  "description": "A set of convenience methods for SharePoint.",
+  "author": "Dennis George",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dennispg/sharepoint-utilities.git"
+  },
+  "homepage": "https://github.com/dennispg/sharepoint-utilities",
+  "keywords": [
+    "SharePoint"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "prepublishOnly": "tsc --target es6 index.ts"
+  },
+  "dependencies": {
+    "@types/sharepoint": "^2016.0.2"
+  },
+  "devDependencies": {
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1"
+  }
+}
