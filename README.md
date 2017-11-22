@@ -19,13 +19,13 @@ Reference
 -   [`SP.ClientContext.executeQuery`](#spclientcontextexecutequery)
 -   [`SP.List.get_queryResult`](#splistget_queryresult)
 -   [`SP.Guid.generateGuid`](#spguidgenerateguid)
--   [`SP.ClientObjectCollection<T>.map`](#spclientObjectcollectioneach)
--   [`SP.ClientObjectCollection<T>.every`](#spclientObjectcollectionevery)
--   [`SP.ClientObjectCollection<T>.find`](#spclientObjectcollectionfind)
--   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientObjectcollectionfirstordefault)
--   [`SP.ClientObjectCollection<T>.map`](#spclientObjectcollectionmap)
--   [`SP.ClientObjectCollection<T>.some`](#spclientObjectcollectionsome)
--   [`SP.ClientObjectCollection<T>.toArray`](#spclientObjectcollectiontoarray)
+-   [`SP.ClientObjectCollection<T>.map`](#spclientobjectcollectioneach)
+-   [`SP.ClientObjectCollection<T>.every`](#spclientobjectcollectionevery)
+-   [`SP.ClientObjectCollection<T>.find`](#spclientobjectcollectionfind)
+-   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientobjectcollectionfirstordefault)
+-   [`SP.ClientObjectCollection<T>.map`](#spclientobjectcollectionmap)
+-   [`SP.ClientObjectCollection<T>.some`](#spclientobjectcollectionsome)
+-   [`SP.ClientObjectCollection<T>.toArray`](#spclientobjectcollectiontoarray)
 
 ## SP.SOD.import
 A wrapper around SharePoint's Script-On-Demand using Promises.
