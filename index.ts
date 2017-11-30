@@ -241,7 +241,7 @@ export function importSod(sod: string | string[] = 'sp.js'): Promise<any> {
 
 function merge(obj, extension) {
     Object.getOwnPropertyNames(extension.prototype).forEach(name => {
-        obj.prototype = extension.prototype[name];
+        obj.prototype[name] = extension.prototype[name];
     });
 }
 
