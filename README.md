@@ -7,7 +7,7 @@ Installing
 
 Extensions
 ----
-This package provides a set of extensions to SharePoint's JavaScript Object Model to make development slightly less tedious. These include collection methods similar to those available from `lodash`.
+This package provides a set of extensions to SharePoint's JavaScript Object Model to make development slightly less tedious. These include collection methods similar to those available from `lodash` (https://lodash.com/docs).
 
 Reference
 ----
@@ -20,8 +20,12 @@ Reference
 -   [`SP.ClientObjectCollection<T>.each`](#spclientobjectcollectioneach)
 -   [`SP.ClientObjectCollection<T>.every`](#spclientobjectcollectionevery)
 -   [`SP.ClientObjectCollection<T>.find`](#spclientobjectcollectionfind)
+-   [`SP.ClientObjectCollection<T>.filter`](#spclientobjectcollectionfilter)
 -   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientobjectcollectionfirstordefault)
+-   [`SP.ClientObjectCollection<T>.forEach`](#spclientobjectcollectionforeach)
+-   [`SP.ClientObjectCollection<T>.groupBy`](#spclientobjectcollectiongroupby)
 -   [`SP.ClientObjectCollection<T>.map`](#spclientobjectcollectionmap)
+-   [`SP.ClientObjectCollection<T>.reduce`](#spclientobjectcollectionreduce)
 -   [`SP.ClientObjectCollection<T>.some`](#spclientobjectcollectionsome)
 -   [`SP.ClientObjectCollection<T>.toArray`](#spclientobjectcollectiontoarray)
 
@@ -100,7 +104,7 @@ let guid = SP.Guid.generateGuid();
 ```
 
 ## SP.ClientObjectCollection<T>.each
-Execute a callback for every element in the matched set.
+Execute a callback for every element in the matched set. (use jQuery style callback signature)
 
 **Example**
 ```typescript
@@ -119,6 +123,7 @@ items.each(function(i, item) {
     console.log(item.get_title());
 });
 ```
+
 ## SP.ClientObjectCollection<T>.every
 Tests whether every element in the collection passes the test implemented by the provided function.
 
@@ -137,6 +142,27 @@ let items = list.getItems();
 var found_item = items.find(item => item.get_item('Title') == "");
 ```
 
+## SP.ClientObjectCollection<T>.filter
+Iterates over elements of collection, returning an array of all elements predicate returns truthy for. The predicate is invoked with three arguments: *(value, index|key, collection)*.
+
+**See**
+
+[lodash filter function documentation](https://lodash.com/docs/#filter)
+
+**Example**
+```typescript
+let items = list.getItems();
+
+items.filter(item => item.get_item('Title') == "")
+// => all list items with empty Title field
+
+items.filter({ "Title": "", "Author": web.get_currentUser() });
+// => all list items where Title is empty and the item was created by the current user
+
+items.filter('IsActive');
+// => all items where IsActive field is truthy (non-null, not false, not 0)
+```
+
 ## SP.ClientObjectCollection<T>.firstOrDefault
 Returns the first element in the collection or null if none
 
@@ -148,6 +174,39 @@ if(item != null)
     console.log('Got the first item in the collection.')
 else
     console.log('The collection was empty.')
+```
+
+## SP.ClientObjectCollection<T>.forEach
+Execute a callback for every element in the matched set. (uses array.forEach style callback signature)
+
+**Example**
+```typescript
+// instead of:
+let items = list.getItems();
+var enumerator = items.getEnumerator();
+while(enumerator.moveNext()) {
+    var item = enumerator.get_current();
+    console.log(item.get_title());
+}
+```
+```typescript
+// use this:
+let items = list.getItems();
+items.each(function(item, i) {
+    console.log(item.get_title());
+});
+```
+
+## SP.ClientObjectCollection<T>.groupBy
+Creates an object composed of keys generated from the results of running each element of `collection` thru `iteratee`. The order of grouped values is determined by the order they occur in `collection`. The corresponding value of each key is an array of elements responsible for generating the key. The iteratee is invoked with three arguments: (value, index, collection).
+
+**Example**
+```typescript
+let items = list.getItems();
+var groups = items.groupBy(function(item) {
+    return item.get_item('ContentType');
+});
+// => { 'Document': [item1, item2], 'Page': [item3, item4] }
 ```
 
 ## SP.ClientObjectCollection<T>.map
@@ -170,6 +229,17 @@ let items = list.getItems();
 var transformed = items.map(function(item, i) {
     return { title: item.get_title() };
 });
+```
+
+## SP.ClientObjectCollection<T>.reduce
+Reduces `collection` to a value which is the accumulated result of running each element in `collection` thru `iteratee`, where each successive invocation is supplied the return value of the previous. If `accumulator` is not given, the first element of `collection` is used as the initial value. The iteratee is invoked with four arguments: (accumulator, value, index|key, collection).
+
+**Example**
+```typescript
+let items = list.getItems();
+var total_sum = items.reduce(function(sum, item) {
+    return sum + item.get_item('Total');
+}, 0)
 ```
 
 ## SP.ClientObjectCollection<T>.some

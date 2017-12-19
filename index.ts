@@ -1,13 +1,24 @@
-type filterPredicateFunction<T> = (item: T, index?: number) => boolean;
-type filterPredicate<T> = filterPredicateFunction<T> | {[prop: string]:any} | string;
+type iterateeFunction<T> = (item?: T, index?: number, collection?: SP.ClientObjectCollection<T>) => boolean | void;
+type filterPredicate<T> = iterateeFunction<T> | {[prop: string]:any} | string | string[];
 
-class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
+class ClientObjectCollection<T> implements IEnumerable<T> {
+    getEnumerator: () => IEnumerator<T>;
+
+    /** Execute a callback for every element in the matched set. (with a jQuery style callback signature)
+    @param callback The function that will called for each element, and passed an index and the element itself
+    @deprecated use forEach instead! */
+    each?(callback: (index?: number, item?: T) => boolean | void): void {
+        return this.forEach((item, i) => {
+            callback(i, item);
+        });
+    }
+
     /** Execute a callback for every element in the matched set.
-    @param callback The function that will called for each element, and passed an index and the element itself */
-    each(callback: (index?: number, item?: T) => boolean | void): void {
+    @param iteratee The function that will called for each element, and passed an index and the element itself */
+    forEach?(iteratee: iterateeFunction<T>): void {
         var index = 0, enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
-            if (callback(index++, enumerator.get_current()) === false)
+            if (iteratee(enumerator.get_current(), index++, <SP.ClientObjectCollection<T>><any>this) === false)
                 break;
         }
     }
@@ -17,16 +28,16 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
      *
      * @param iteratee The function invoked per iteration.
      * @return Returns the new mapped array. */
-    map<TResult>(iteratee: (item?: T, index?: number) => TResult): TResult[] {
+    map?<TResult>(iteratee: (item?: T, index?: number, coll?: SP.ClientObjectCollection<T>) => TResult): TResult[] {
         var index = -1, enumerator = this.getEnumerator(), result = [];
         while (enumerator.moveNext()) {
-            result[++index] = iteratee(enumerator.get_current(), index);
+            result[++index] = iteratee(enumerator.get_current(), index, <SP.ClientObjectCollection<T>><any>this);
         }
         return result;
     }
 
     /** Converts a collection to a regular JS array. */
-    toArray(): T[] {
+    toArray?(): T[] {
         var collection: T[] = [];
         this.each((i, item: T) => {
             collection.push(item);
@@ -44,10 +55,10 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
      * @returns true if the callback */
-    some(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): boolean {
+    some?(iteratee?: iterateeFunction<T>): boolean {
         var val = false;
         this.each((i, item) => {
-            if(iteratee(item, i, this)) {
+            if(iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
                 val = true;
                 return false;
             }
@@ -58,12 +69,12 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
      * @returns true if the callback */
-    every(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): boolean {
+    every?(iteratee?: iterateeFunction<T>): boolean {
         var val = true;
         var hasitems = false;
         this.each((i, item) => {
             hasitems = true;
-            if(!iteratee(item, i, this)) {
+            if(!iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
                 val = false;
                 return false;
             }
@@ -71,47 +82,13 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
         return hasitems && val;
     }
 
-    filter(predicate: filterPredicate<T>): T[] {
-        var items = [];
-        var predicateType = Object.prototype.toString.call(predicate);
-        switch(predicateType) {
-            case '[object Function]':
-                this.each((i, item) => {
-                    if((<filterPredicateFunction<T>>predicate)(item, i))
-                        items.push(item);
-                });
-                break;
-            case 'object':
-                this.each((i, item) => {
-                    for(var prop in (<{[prop: string]:any}>predicate)) {
-                        if(
-                            (item instanceof SP.ListItem && (item.get_item(prop) == predicate[prop]))
-                            || item[prop] == predicate[prop]
-                        )
-                            items.push(item);
-                    }
-                });
-                break;
-            case 'string':
-                this.each((i, item) => {
-                    if(
-                        (item instanceof SP.ListItem && item.get_item(<string> predicate))
-                        || item[<string> predicate]
-                    )
-                        items.push(item);
-                });
-                break;
-        }
-        return items;
-    }
-
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to execute on each element in the collection
      * @returns true if the callback */
-    find(iteratee?: (item: T, index?: number, collection?: IEnumerable<T>) => boolean): T {
+    find?(iteratee?: iterateeFunction<T>): T {
         var val = undefined;
         this.each((i, item) => {
-            if(iteratee(item, i, this)) {
+            if(iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
                 val = item;
                 return false;
             }
@@ -119,15 +96,96 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
         return val;
     }
 
+    reduce?<TResult>(
+        iteratee: (prev: TResult, curr: T, index: number, list: SP.ClientObjectCollection<T>) => TResult,
+        accumulator: TResult
+    ): TResult {
+        this.forEach((item, i) => {
+            accumulator = iteratee(accumulator, item, i, <SP.ClientObjectCollection<T>><any>this);
+        });
+        return accumulator;
+    }
+
+    groupBy?(iteratee?: (value: T, index?: number, collection?: SP.ClientObjectCollection<T>) => string | number): {[group:string]:T[]} {
+        return this.reduce((result, value) => {
+            var key = iteratee(value)
+            if (Object.prototype.hasOwnProperty.call(result, key))
+                result[key].push(value)
+            else
+                result[key] = [value]
+            return result
+        }, {})
+    }
+
+    matches?<T>(source: {[prop: string]:any}): iterateeFunction<T> {
+        return item => {
+            for(var prop in (<{[prop: string]:any}>source)) {
+                var compare_val = source[prop];
+                var value = null;
+                if(item instanceof SP.ListItem) {
+                    value = item.get_item(prop);
+                    if(value instanceof SP.FieldLookupValue || value instanceof SP.FieldUserValue) {
+                        value = value.get_lookupId();
+                        if(compare_val instanceof SP.User)
+                            compare_val = compare_val.get_id();
+                        else if(compare_val instanceof SP.FieldLookupValue || compare_val instanceof SP.FieldUserValue)
+                            compare_val = compare_val.get_lookupId();
+                    }
+                    else if(value instanceof SP.FieldUrlValue) {
+                        value = value.get_url() + ';#' + value.get_description();
+                        if(compare_val instanceof SP.FieldUrlValue)
+                            compare_val = compare_val.get_url() + ';#' + compare_val.get_description();
+                    }
+                }
+                else value = item[prop]
+
+                return value == compare_val;
+            }
+        }
+    }
+
+    property?<T>(props: string | string[]): iterateeFunction<T> {
+        var properties: string[] = Array.isArray(props) ? props : [props];
+
+        return item => {
+            if(item instanceof SP.ListItem)
+                return properties.every(prop => item.get_item(prop));
+            else
+                return properties.every(prop => item[<string> prop]);
+        }
+    }
+
+    filter?(predicate: filterPredicate<T>): T[] {
+        var predicateType = Object.prototype.toString.call(predicate);
+        switch(predicateType) {
+            case '[object Function]':
+                var items = [];
+                var filter = <iterateeFunction<T>>predicate;
+                this.forEach((item, i) => {
+                    if(filter(item, i, <SP.ClientObjectCollection<T>><any>this))
+                        items.push(item);
+                });
+                return items;
+
+            case 'object':
+                return this.filter(this.matches(<{[prop: string]:any}> predicate));
+
+            case 'string':
+            case '[object Array]':
+                return this.filter(this.property(<string|string[]> predicate));
+        }
+        return null;
+    }
+
     /** Returns the first element in the collection or null if none
      * @param iteratee An optional function to filter by
      * @return Returns the first item in the collection */
-    firstOrDefault(iteratee?: (item?: T) => boolean): T {
-        var enumerator = this.getEnumerator();
+    firstOrDefault?(iteratee?: iterateeFunction<T>): T {
+        var index = 0, enumerator = this.getEnumerator();
         if (enumerator.moveNext()) {
             var current = enumerator.get_current();
             if(iteratee) {
-                if(iteratee(current))
+                if(iteratee(current, index++, <SP.ClientObjectCollection<T>><any>this))
                     return current;
             }
             else
@@ -137,10 +195,10 @@ class ClientObjectCollection<T> extends SP.ClientObjectCollection<T> {
     }
 }
 
-class ClientContext extends SP.ClientRuntimeContext {
+class ClientContext {
     /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
     executeQuery() {
-        var context = this;
+        var context = <SP.ClientRuntimeContext><any>this;
         return new Promise<SP.ClientRequestSucceededEventArgs>((resolve, reject) => {
             context.executeQueryAsync(
                 (sender, args: SP.ClientRequestSucceededEventArgs) => { resolve(args); },
@@ -150,17 +208,17 @@ class ClientContext extends SP.ClientRuntimeContext {
     }
 }
 
-class List extends SP.List {
+class List {
     /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
     @param queryText the queryText to use for the query.set_ViewXml() call */
     get_queryResult(queryText: string): SP.ListItemCollection {
         var query = new SP.CamlQuery();
         query.set_viewXml(queryText);
-        return this.getItems(query);
+        return (<SP.List><any>this).getItems(query);
     }
 }
 
-class Guid extends SP.Guid {
+class Guid {
     static generateGuid() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);

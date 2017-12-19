@@ -1,6 +1,6 @@
 {
   "name": "sharepoint-utilities",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "A set of convenience methods for SharePoint.",
   "author": "Dennis George",
   "main": "index.js",
@@ -15,10 +15,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "prepublishOnly": "tsc --target es6 index.ts"
+    "prepublishOnly": "tsc --target es5 --removeComments --lib DOM,ES6 index.ts"
   },
   "dependencies": {
-    "@types/sharepoint": "^2016.0.2"
+    "@types/core-js": "^0.9.43",
+    "@types/sharepoint": "^2016.1.0"
   },
   "devDependencies": {
     "typescript": "^2.6.1"
