@@ -3,7 +3,26 @@ A set of convenience methods for SharePoint.
 
 Installing
 ---
-`npm install sharepoint-utilities`.
+`npm install sharepoint-utilities`
+
+Usage
+-----
+
+```typescript
+import * as SPUtilities from 'sharepoint-utilities';
+SPUtilities.register()
+.then(() => {
+
+});
+
+// or
+
+import * as SPUtilities from 'sharepoint-utilities';
+SPUtilities.importSod('sp.js')
+.then(() => {
+
+});
+```
 
 Extensions
 ----
