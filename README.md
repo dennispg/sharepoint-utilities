@@ -50,7 +50,7 @@ Reference
 A wrapper around SharePoint's Script-On-Demand using Promises.
 
 **Parameters**
--   `sod` **(string | string[])** Script or scripts to load from SharePoint
+-   `sod` **`(string | string[])`** Script or scripts to load from SharePoint
 
 **Example**
 ```javascript
