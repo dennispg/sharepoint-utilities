@@ -9,22 +9,14 @@ Usage
 -----
 
 ```typescript
-import * as SPUtilities from 'sharepoint-utilities';
-SPUtilities.register()
-.then(() => {
-
-});
-
-// or
-
-import * as SPUtilities from 'sharepoint-utilities';
-SPUtilities.importSod('sp.js')
-.then(() => {
-
+import {register} from 'sharepoint-utilities';
+register().then(() => {
 });
 
 // or from your browser console
-import("https://dennispg.github.io/sharepoint-utilities/dist/index.js").then(m=>m.register(true));
+
+import("https://dennispg.github.io/sharepoint-utilities/dist/index.js")
+.then(m=>m.register(true));
 ```
 
 Extensions
