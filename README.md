@@ -12,9 +12,12 @@ Usage
 import {register} from 'sharepoint-utilities';
 register().then(() => {
 });
+```
 
-// or from your browser console
+Browser Console Usage
+----
 
+```typescript
 import("https://dennispg.github.io/sharepoint-utilities/dist/index.js")
 .then(m=>m.register(true));
 ```
