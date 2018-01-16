@@ -22,6 +22,9 @@ SPUtilities.importSod('sp.js')
 .then(() => {
 
 });
+
+// or from your browser console
+import("https://dennispg.github.io/sharepoint-utilities/dist/index.js").then(m=>m.register(true));
 ```
 
 Extensions

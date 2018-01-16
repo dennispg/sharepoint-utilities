@@ -312,6 +312,10 @@ function registerExtensions() {
     SP.SOD['import'] = importSod;
 }
 
-export function register() {
-    return importSod('sp.js');
+export function register(log) {
+    return importSod('sp.js')
+    .then(() => {
+        if(log)
+            console.log('SharePoint extensions loaded.');
+    })
 }
