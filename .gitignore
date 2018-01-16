@@ -1,2 +1,4 @@
 node_modules
+docs
 index.js
+!dist/index.js

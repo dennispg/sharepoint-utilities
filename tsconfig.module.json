@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "esnext",
+        "outDir": "dist",
+        "lib": [
+            "dom",
+            "es6"
+        ],
+        "removeComments": true
+    },
+    "files": [ "index.ts" ]
+}

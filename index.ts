@@ -66,7 +66,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         return val;
     }
 
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
+    /** Tests whether all elements in the collection pass the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
      * @returns true if the callback */
     every?(iteratee?: iterateeFunction<T>): boolean {
