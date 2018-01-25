@@ -106,9 +106,6 @@ declare global {
         export interface ClientRuntimeContext {
             /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
             executeQuery(): Promise<ClientRequestSucceededEventArgs>;
-
-            /** Register a callback in the event that a query error goes unhandled. */
-            registerUnhandledErrorHandler(handler: (args: ClientRequestFailedEventArgs) => Promise<any>);
         }
 
         export interface List {
@@ -126,6 +123,9 @@ declare global {
         }
     }
 }
+
+/** Register a callback in the event that a query error goes unhandled. */
+export function registerUnhandledErrorHandler(handler: (args: SP.ClientRequestFailedEventArgs) => Promise<any>);
 export function registerSodDependency(sod: string, dep: string | string[]);
 export function importSod(sod: string | string[]): Promise<any>;
 export function register();

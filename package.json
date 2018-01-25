@@ -1,6 +1,6 @@
 {
   "name": "sharepoint-utilities",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "A set of convenience methods for SharePoint.",
   "author": "Dennis George",
   "main": "index.js",
