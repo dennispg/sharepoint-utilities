@@ -141,11 +141,20 @@ class ClientObjectCollection {
         return null;
     }
 }
+var rejectionHandler;
+export function registerUnhandledErrorHandler(handler) {
+    rejectionHandler = handler;
+}
 class ClientContext {
     executeQuery() {
         var context = this;
         return new Promise((resolve, reject) => {
             context.executeQueryAsync((sender, args) => { resolve(args); }, (sender, args) => { reject(args); });
+        })
+            .catch((args) => {
+            if (rejectionHandler)
+                return rejectionHandler(args);
+            return args;
         });
     }
 }

@@ -1,4 +1,4 @@
-type iterateeFunction<T> = (item?: T, index?: number, collection?: SP.ClientObjectCollection<T>) => boolean | void;
+type iterateeFunction<T> = (item?: T, index?: number, collection?: IEnumerable<T>) => boolean | void;
 type filterPredicate<T> = iterateeFunction<T> | {[prop: string]:any} | string | string[];
 
 declare interface IEnumerable<T> {
@@ -18,7 +18,7 @@ declare interface IEnumerable<T> {
      *
      * @param iteratee The function invoked per iteration.
      * @return Returns the new mapped array. */
-    map?<TResult>(iteratee: (item?: T, index?: number, coll?: SP.ClientObjectCollection<T>) => TResult): TResult[];
+    map?<TResult>(iteratee: (item?: T, index?: number, coll?: IEnumerable<T>) => TResult): TResult[];
 
     /** Converts a collection to a regular JS array. */
     toArray?(): T[];
@@ -35,7 +35,7 @@ declare interface IEnumerable<T> {
      * @returns true if the callback */
     some?(iteratee?: iterateeFunction<T>): boolean;
 
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
+    /** Tests whether all elements in the collection pass the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
      * @returns true if the callback */
     every?(iteratee?: iterateeFunction<T>): boolean;
@@ -81,7 +81,7 @@ declare interface IEnumerable<T> {
      * @returns {*} Returns the accumulated value.
      */
     reduce?<TResult>(
-        iteratee: (prev: TResult, curr: T, index: number, list: SP.ClientObjectCollection<T>) => TResult,
+        iteratee: (prev: TResult, curr: T, index: number, list: IEnumerable<T>) => TResult,
         accumulator: TResult
     ): TResult;
 
@@ -95,7 +95,7 @@ declare interface IEnumerable<T> {
      * @param {Function} iteratee The iteratee to transform keys.
      * @returns {Object} Returns the composed aggregate object.
      */
-    groupBy?(iteratee?: (value: T, index?: number, collection?: SP.ClientObjectCollection<T>) => string | number): {[group:string]:T[]};
+    groupBy?(iteratee?: (value: T, index?: number, collection?: IEnumerable<T>) => string | number): {[group:string]:T[]};
 }
 
 declare global {
@@ -106,6 +106,9 @@ declare global {
         export interface ClientRuntimeContext {
             /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
             executeQuery(): Promise<ClientRequestSucceededEventArgs>;
+
+            /** Register a callback in the event that a query error goes unhandled. */
+            registerUnhandledErrorHandler(handler: (args: ClientRequestFailedEventArgs) => Promise<any>);
         }
 
         export interface List {

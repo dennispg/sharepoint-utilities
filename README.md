@@ -34,17 +34,17 @@ Reference
 -   [`SP.ClientContext.executeQuery`](#spclientcontextexecutequery)
 -   [`SP.List.get_queryResult`](#splistget_queryresult)
 -   [`SP.Guid.generateGuid`](#spguidgenerateguid)
--   [`SP.ClientObjectCollection<T>.each`](#spclientobjectcollectioneach)
--   [`SP.ClientObjectCollection<T>.every`](#spclientobjectcollectionevery)
--   [`SP.ClientObjectCollection<T>.find`](#spclientobjectcollectionfind)
--   [`SP.ClientObjectCollection<T>.filter`](#spclientobjectcollectionfilter)
--   [`SP.ClientObjectCollection<T>.firstOrDefault`](#spclientobjectcollectionfirstordefault)
--   [`SP.ClientObjectCollection<T>.forEach`](#spclientobjectcollectionforeach)
--   [`SP.ClientObjectCollection<T>.groupBy`](#spclientobjectcollectiongroupby)
--   [`SP.ClientObjectCollection<T>.map`](#spclientobjectcollectionmap)
--   [`SP.ClientObjectCollection<T>.reduce`](#spclientobjectcollectionreduce)
--   [`SP.ClientObjectCollection<T>.some`](#spclientobjectcollectionsome)
--   [`SP.ClientObjectCollection<T>.toArray`](#spclientobjectcollectiontoarray)
+-   [`IEnumerable<T>.each`](#ienumerableteach)
+-   [`IEnumerable<T>.every`](#ienumerabletevery)
+-   [`IEnumerable<T>.find`](#ienumerabletfind)
+-   [`IEnumerable<T>.filter`](#ienumerabletfilter)
+-   [`IEnumerable<T>.firstOrDefault`](#ienumerabletfirstordefault)
+-   [`IEnumerable<T>.forEach`](#ienumerabletforeach)
+-   [`IEnumerable<T>.groupBy`](#ienumerabletgroupby)
+-   [`IEnumerable<T>.map`](#ienumerabletmap)
+-   [`IEnumerable<T>.reduce`](#ienumerabletreduce)
+-   [`IEnumerable<T>.some`](#ienumerabletsome)
+-   [`IEnumerable<T>.toArray`](#ienumerablettoarray)
 
 ## SP.SOD.import
 A wrapper around SharePoint's Script-On-Demand using Promises.
@@ -120,7 +120,7 @@ var items = list.get_queryResult('<View><Query><Where><Eq><FieldRef Name="Title"
 let guid = SP.Guid.generateGuid();
 ```
 
-## SP.ClientObjectCollection<T>.each
+## IEnumerable<T>.each
 Execute a callback for every element in the matched set. (use jQuery style callback signature)
 
 **Example**
@@ -141,7 +141,7 @@ items.each(function(i, item) {
 });
 ```
 
-## SP.ClientObjectCollection<T>.every
+## IEnumerable<T>.every
 Tests whether every element in the collection passes the test implemented by the provided function.
 
 **Example**
@@ -150,7 +150,7 @@ let items = list.getItems();
 items.every(item => item.get_item('Title') == "") == false;
 ```
 
-## SP.ClientObjectCollection<T>.find
+## IEnumerable<T>.find
 Finds the first element in the collection which passes the test implemented by the provided function, or null if not found.
 
 **Example**
@@ -159,7 +159,7 @@ let items = list.getItems();
 var found_item = items.find(item => item.get_item('Title') == "");
 ```
 
-## SP.ClientObjectCollection<T>.filter
+## IEnumerable<T>.filter
 Iterates over elements of collection, returning an array of all elements predicate returns truthy for. The predicate is invoked with three arguments: *(value, index|key, collection)*.
 
 **See**
@@ -180,7 +180,7 @@ items.filter('IsActive');
 // => all items where IsActive field is truthy (non-null, not false, not 0)
 ```
 
-## SP.ClientObjectCollection<T>.firstOrDefault
+## IEnumerable<T>.firstOrDefault
 Returns the first element in the collection or null if none
 
 **Example**
@@ -193,7 +193,7 @@ else
     console.log('The collection was empty.')
 ```
 
-## SP.ClientObjectCollection<T>.forEach
+## IEnumerable<T>.forEach
 Execute a callback for every element in the matched set. (uses array.forEach style callback signature)
 
 **Example**
@@ -214,7 +214,7 @@ items.each(function(item, i) {
 });
 ```
 
-## SP.ClientObjectCollection<T>.groupBy
+## IEnumerable<T>.groupBy
 Creates an object composed of keys generated from the results of running each element of `collection` thru `iteratee`. The order of grouped values is determined by the order they occur in `collection`. The corresponding value of each key is an array of elements responsible for generating the key. The iteratee is invoked with three arguments: (value, index, collection).
 
 **Example**
@@ -226,7 +226,7 @@ var groups = items.groupBy(function(item) {
 // => { 'Document': [item1, item2], 'Page': [item3, item4] }
 ```
 
-## SP.ClientObjectCollection<T>.map
+## IEnumerable<T>.map
 Creates an array of values by running each element in collection through iteratee.
 
 **Example**
@@ -248,7 +248,7 @@ var transformed = items.map(function(item, i) {
 });
 ```
 
-## SP.ClientObjectCollection<T>.reduce
+## IEnumerable<T>.reduce
 Reduces `collection` to a value which is the accumulated result of running each element in `collection` thru `iteratee`, where each successive invocation is supplied the return value of the previous. If `accumulator` is not given, the first element of `collection` is used as the initial value. The iteratee is invoked with four arguments: (accumulator, value, index|key, collection).
 
 **Example**
@@ -259,7 +259,7 @@ var total_sum = items.reduce(function(sum, item) {
 }, 0)
 ```
 
-## SP.ClientObjectCollection<T>.some
+## IEnumerable<T>.some
 Tests whether at least one element in the collection passes the test implemented by the provided function.
 
 **Example**
@@ -269,7 +269,7 @@ if (items.some((item, i, items) => item.get_item('Title') == ""))
     console.log('Found an empty title.');
 ```
 
-## SP.ClientObjectCollection<T>.toArray
+## IEnumerable<T>.toArray
 Converts a collection to regular **Array**
 
 **Example**

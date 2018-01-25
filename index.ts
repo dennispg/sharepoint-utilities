@@ -1,4 +1,4 @@
-type iterateeFunction<T> = (item?: T, index?: number, collection?: SP.ClientObjectCollection<T>) => boolean | void;
+type iterateeFunction<T> = (item?: T, index?: number, collection?: IEnumerable<T>) => boolean | void;
 type filterPredicate<T> = iterateeFunction<T> | {[prop: string]:any} | string | string[];
 
 class ClientObjectCollection<T> implements IEnumerable<T> {
@@ -18,7 +18,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     forEach?(iteratee: iterateeFunction<T>): void {
         var index = 0, enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
-            if (iteratee(enumerator.get_current(), index++, <SP.ClientObjectCollection<T>><any>this) === false)
+            if (iteratee(enumerator.get_current(), index++, this) === false)
                 break;
         }
     }
@@ -28,10 +28,10 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
      *
      * @param iteratee The function invoked per iteration.
      * @return Returns the new mapped array. */
-    map?<TResult>(iteratee: (item?: T, index?: number, coll?: SP.ClientObjectCollection<T>) => TResult): TResult[] {
+    map?<TResult>(iteratee: (item?: T, index?: number, coll?: IEnumerable<T>) => TResult): TResult[] {
         var index = -1, enumerator = this.getEnumerator(), result = [];
         while (enumerator.moveNext()) {
-            result[++index] = iteratee(enumerator.get_current(), index, <SP.ClientObjectCollection<T>><any>this);
+            result[++index] = iteratee(enumerator.get_current(), index, this);
         }
         return result;
     }
@@ -58,7 +58,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     some?(iteratee?: iterateeFunction<T>): boolean {
         var val = false;
         this.each((i, item) => {
-            if(iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
+            if(iteratee(item, i, this)) {
                 val = true;
                 return false;
             }
@@ -74,7 +74,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         var hasitems = false;
         this.each((i, item) => {
             hasitems = true;
-            if(!iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
+            if(!iteratee(item, i, this)) {
                 val = false;
                 return false;
             }
@@ -88,7 +88,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     find?(iteratee?: iterateeFunction<T>): T {
         var val = undefined;
         this.each((i, item) => {
-            if(iteratee(item, i, <SP.ClientObjectCollection<T>><any>this)) {
+            if(iteratee(item, i, this)) {
                 val = item;
                 return false;
             }
@@ -97,16 +97,16 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     }
 
     reduce?<TResult>(
-        iteratee: (prev: TResult, curr: T, index: number, list: SP.ClientObjectCollection<T>) => TResult,
+        iteratee: (prev: TResult, curr: T, index: number, list: IEnumerable<T>) => TResult,
         accumulator: TResult
     ): TResult {
         this.forEach((item, i) => {
-            accumulator = iteratee(accumulator, item, i, <SP.ClientObjectCollection<T>><any>this);
+            accumulator = iteratee(accumulator, item, i, this);
         });
         return accumulator;
     }
 
-    groupBy?(iteratee?: (value: T, index?: number, collection?: SP.ClientObjectCollection<T>) => string | number): {[group:string]:T[]} {
+    groupBy?(iteratee?: (value: T, index?: number, collection?: IEnumerable<T>) => string | number): {[group:string]:T[]} {
         return this.reduce((result, value) => {
             var key = iteratee(value)
             if (Object.prototype.hasOwnProperty.call(result, key))
@@ -162,7 +162,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
                 var items = [];
                 var filter = <iterateeFunction<T>>predicate;
                 this.forEach((item, i) => {
-                    if(filter(item, i, <SP.ClientObjectCollection<T>><any>this))
+                    if(filter(item, i, this))
                         items.push(item);
                 });
                 return items;
@@ -185,7 +185,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         if (enumerator.moveNext()) {
             var current = enumerator.get_current();
             if(iteratee) {
-                if(iteratee(current, index++, <SP.ClientObjectCollection<T>><any>this))
+                if(iteratee(current, index++, this))
                     return current;
             }
             else
@@ -193,6 +193,12 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         }
         return null;
     }
+}
+
+var rejectionHandler: (args: SP.ClientRequestFailedEventArgs) => Promise<any>;
+/** Register a callback in the event that a query error goes unhandled. */
+export function registerUnhandledErrorHandler(handler: (args: SP.ClientRequestFailedEventArgs) => Promise<any>) {
+    rejectionHandler = handler;
 }
 
 class ClientContext {
@@ -204,6 +210,11 @@ class ClientContext {
                 (sender, args: SP.ClientRequestSucceededEventArgs) => { resolve(args); },
                 (sender, args: SP.ClientRequestFailedEventArgs) => { reject(args); }
             );
+        })
+        .catch((args: SP.ClientRequestFailedEventArgs) => {
+            if(rejectionHandler)
+                return rejectionHandler(args);
+            return args;
         });
     }
 }
