@@ -355,6 +355,7 @@ function registerExtensions() {
     merge(SP.ClientObjectCollection, ClientObjectCollection);
     merge(SP.ClientContext, ClientContext);
     merge(SP.List, List);
+    merge(SP["UserCustomActionCollection"], ClientObjectCollection);
     merge(SP["UserCustomActionCollection"], UserCustomActionCollection);
     merge(SP.Guid, Guid);
     SP.SOD['import'] = importSod;
