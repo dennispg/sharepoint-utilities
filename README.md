@@ -287,7 +287,7 @@ let item_array = items.toArray();
 ## SP.UserCustomActionCollection.ensure
 Adds a `SP.UserCustomAction` object to the collection. If an object with the same name or title already, it is overwritten instead of creating a duplicate.
 
-IMPORTANT NOTE: This operation triggers a SP.ClientContext.executeQuery operation.
+**IMPORTANT NOTE**: This operation triggers a SP.ClientContext.executeQuery operation.
 
 **Example**
 ```typescript
