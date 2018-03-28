@@ -48,9 +48,9 @@ Reference
 -   [`IEnumerable<T>.toArray`](#ienumerablettoarray)
 -   [`SP.UserCustomActionCollection.ensure`](#spusercustomactioncollectionensure)
 -   [`SP.UserCustomActionCollection.remove`](#spusercustomactioncollectionremove)
--   [`SP.UserCustomActionCollection.removeByTitle`](#spusercustomactioncollectionremoveByTitle)
--   [`SP.UserCustomActionCollection.removeByName`](#spusercustomactioncollectionremoveByName)
--   [`SP.UserCustomActionCollection.removeById`](#spusercustomactioncollectionremoveById)
+-   [`SP.UserCustomActionCollection.removeByTitle`](#spusercustomactioncollectionremoveBytitle)
+-   [`SP.UserCustomActionCollection.removeByName`](#spusercustomactioncollectionremoveByname)
+-   [`SP.UserCustomActionCollection.removeById`](#spusercustomactioncollectionremoveByid)
 
 ## SP.SOD.import
 A wrapper around SharePoint's Script-On-Demand using Promises.
