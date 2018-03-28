@@ -111,7 +111,15 @@ declare global {
         export interface List {
             /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
             @param queryText the queryText to use for the query.set_ViewXml() call */
-            get_queryResult<T=any>(queryText: string): ListItemCollection<T>;
+            get_queryResult<T=any>(queryText?: string): ListItemCollection<T>;
+        }
+
+        export interface UserCustomActionCollection {
+            ensure(custom_action: CustomAction): Promise<Guid>;
+            remove(selector: (action: UserCustomAction) => boolean): Promise<ClientRequestSucceededEventArgs>;
+            removeByTitle(title: string): Promise<ClientRequestSucceededEventArgs>;
+            removeByName(name: string): Promise<ClientRequestSucceededEventArgs>;
+            removeById(id: Guid): Promise<ClientRequestSucceededEventArgs>;
         }
 
         namespace Guid {
@@ -122,6 +130,23 @@ declare global {
             import(sod: string | string[]): Promise<any>;
         }
     }
+}
+
+export interface CustomAction {
+    commandUIExtension?: string;
+    description?: string;
+    group?: string;
+    imageUrl?: string;
+    location?: string;
+    name?: string;
+    registrationId?: string;
+    registrationType?: SP.UserCustomActionRegistrationType;
+    rights?: SP.BasePermissions;
+    scriptBlock?: string;
+    scriptSrc?: string;
+    sequence?: number;
+    title?: string;
+    url?: string;
 }
 
 /** Register a callback in the event that a query error goes unhandled. */

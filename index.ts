@@ -1,3 +1,5 @@
+/// <reference path="./index.d.ts" />
+
 type iterateeFunction<T> = (item?: T, index?: number, collection?: IEnumerable<T>) => boolean | void;
 type filterPredicate<T> = iterateeFunction<T> | {[prop: string]:any} | string | string[];
 
@@ -222,10 +224,89 @@ class ClientContext {
 class List {
     /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
     @param queryText the queryText to use for the query.set_ViewXml() call */
-    get_queryResult(queryText: string): SP.ListItemCollection {
+    get_queryResult(queryText?: string): SP.ListItemCollection {
         var query = new SP.CamlQuery();
-        query.set_viewXml(queryText);
+        query.set_viewXml(queryText || "<View><Query></Query></View>");
         return (<SP.List><any>this).getItems(query);
+    }
+}
+
+export interface CustomAction {
+    commandUIExtension?: string;
+    description?: string;
+    group?: string;
+    imageUrl?: string;
+    location?: string;
+    name?: string;
+    registrationId?: string;
+    registrationType?: SP.UserCustomActionRegistrationType;
+    rights?: SP.BasePermissions;
+    scriptBlock?: string;
+    scriptSrc?: string;
+    sequence?: number;
+    title?: string;
+    url?: string;
+}
+
+class UserCustomActionCollection {
+    ensure(custom_action: CustomAction) {
+        var actions = this as any as SP.UserCustomActionCollection;
+        var action: SP.UserCustomAction;
+        var context = actions.get_context();
+        context.load(actions);
+        return context.executeQuery()
+        .then(() => {
+            action = actions.filter(a => a.get_name() == custom_action.name || a.get_title() == custom_action.title)[0];
+            if(!action) action = actions.add();
+            Object.getOwnPropertyNames(custom_action).forEach(prop => {
+                switch(prop) {
+                    case "commandUIExtension": custom_action.commandUIExtension && action.set_commandUIExtension(custom_action.commandUIExtension); break;
+                    case "description": custom_action.description && action.set_description(custom_action.description); break;
+                    case "group": custom_action.group && action.set_group(custom_action.group); break;
+                    case "imageUrl": custom_action.imageUrl && action.set_imageUrl(custom_action.imageUrl); break;
+                    case "location": custom_action.location && action.set_location(custom_action.location); break;
+                    case "name": custom_action.name && action.set_name(custom_action.name); break;
+                    case "registrationType": custom_action.registrationType && action.set_registrationType(custom_action.registrationType); break;
+                    case "rights": custom_action.rights && action.set_rights(custom_action.rights); break;
+                    case "scriptBlock": custom_action.scriptBlock && action.set_scriptBlock(custom_action.scriptBlock); break;
+                    case "scriptSrc": custom_action.scriptSrc && action.set_scriptSrc(custom_action.scriptSrc); break;
+                    case "sequence": custom_action.sequence && action.set_sequence(custom_action.sequence); break;
+                    case "title": custom_action.title && action.set_title(custom_action.title); break;
+                    case "url": custom_action.url && action.set_url(custom_action.url); break;
+                }
+            });
+            action.update();
+            context.load(action);
+            return context.executeQuery();
+        })
+        .then(() => {
+            return action.get_id();
+        });
+    }
+
+    remove(selector: (action: SP.UserCustomAction) => boolean) {
+        var actions = this as any as SP.UserCustomActionCollection;
+        var context = actions.get_context();
+        context.load(actions);
+        return context.executeQuery()
+        .then(() => {
+            var action = actions.filter(a => selector(a))[0];
+            if(action)
+                action.deleteObject();
+            return context.executeQuery();
+        });
+    }
+
+    removeByTitle(title: string) {
+        return this.remove(action => action.get_title() == title);
+    }
+
+    removeByName(name: string) {
+        return this.remove(action => action.get_name() == name);
+    }
+
+    removeById(id: SP.Guid) {
+        return this.remove(action => action.get_id().equals(id));
     }
 }
 
@@ -319,6 +400,7 @@ function registerExtensions() {
     merge(SP.ClientObjectCollection, ClientObjectCollection);
     merge(SP.ClientContext, ClientContext);
     merge(SP.List, List);
+    merge(SP["UserCustomActionCollection"], UserCustomActionCollection);
     merge(SP.Guid, Guid);
     SP.SOD['import'] = importSod;
 }

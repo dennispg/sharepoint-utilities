@@ -6,6 +6,7 @@
             "dom",
             "es6"
         ],
+        "outDir": "dist",
         "removeComments": true
     },
     "files": [ "index.ts" ]

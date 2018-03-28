@@ -18,7 +18,8 @@ Browser Console Usage
 ----
 
 ```typescript
-import("https://dennispg.github.io/sharepoint-utilities/dist/index.js")
+// Only works in browser with support for ES6 modules:
+import("https://dennispg.github.io/sharepoint-utilities/es6/index.js")
 .then(m=>m.register(true));
 ```
 
@@ -45,6 +46,11 @@ Reference
 -   [`IEnumerable<T>.reduce`](#ienumerabletreduce)
 -   [`IEnumerable<T>.some`](#ienumerabletsome)
 -   [`IEnumerable<T>.toArray`](#ienumerablettoarray)
+-   [`SP.UserCustomActionCollection.ensure`](#spusercustomactioncollectionensure)
+-   [`SP.UserCustomActionCollection.remove`](#spusercustomactioncollectionremove)
+-   [`SP.UserCustomActionCollection.removeByTitle`](#spusercustomactioncollectionremoveByTitle)
+-   [`SP.UserCustomActionCollection.removeByName`](#spusercustomactioncollectionremoveByName)
+-   [`SP.UserCustomActionCollection.removeById`](#spusercustomactioncollectionremoveById)
 
 ## SP.SOD.import
 A wrapper around SharePoint's Script-On-Demand using Promises.
@@ -277,3 +283,42 @@ Converts a collection to regular **Array**
 let items = list.getItems();
 let item_array = items.toArray();
 ```
+
+## SP.UserCustomActionCollection.ensure
+Adds a `SP.UserCustomAction` object to the collection. If an object with the same name or title already, it is overwritten instead of creating a duplicate.
+
+IMPORTANT NOTE: This operation triggers a SP.ClientContext.executeQuery operation.
+
+**Example**
+```typescript
+var web = context.get_web();
+var actions = web.get_userCustomActions();
+actions.ensure({
+    title: "ExampleCustomAction",
+    scriptSrc: "~sitecollection/Style Library/custom_script.js",
+    location: "ScriptLink",
+    sequence: 1
+})
+.then(id => {
+    console.log(`ScriptLink custom action with ID:${id} as added successfully.`);
+});
+```
+
+## SP.UserCustomActionCollection.remove
+Deletes all `SP.UserCustomAction` objects from the collection where the provided selector function returns true.
+
+## SP.UserCustomActionCollection.removeByTitle
+Deletes all `SP.UserCustomAction` object from the collection with matching title value.
+
+**Example**
+```typescript
+var web = context.get_web();
+var actions = web.get_userCustomActions();
+actions.removeByTitle("ExampleCustomAction");
+```
+
+## SP.UserCustomActionCollection.removeByName
+Deletes all `SP.UserCustomAction` object from the collection with matching name value.
+
+## SP.UserCustomActionCollection.removeById
+Deletes all `SP.UserCustomAction` object from the collection with matching ID value.

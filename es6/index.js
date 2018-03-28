@@ -1,78 +1,70 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var ClientObjectCollection = (function () {
-    function ClientObjectCollection() {
-    }
-    ClientObjectCollection.prototype.each = function (callback) {
-        return this.forEach(function (item, i) {
+class ClientObjectCollection {
+    each(callback) {
+        return this.forEach((item, i) => {
             callback(i, item);
         });
-    };
-    ClientObjectCollection.prototype.forEach = function (iteratee) {
+    }
+    forEach(iteratee) {
         var index = 0, enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
             if (iteratee(enumerator.get_current(), index++, this) === false)
                 break;
         }
-    };
-    ClientObjectCollection.prototype.map = function (iteratee) {
+    }
+    map(iteratee) {
         var index = -1, enumerator = this.getEnumerator(), result = [];
         while (enumerator.moveNext()) {
             result[++index] = iteratee(enumerator.get_current(), index, this);
         }
         return result;
-    };
-    ClientObjectCollection.prototype.toArray = function () {
+    }
+    toArray() {
         var collection = [];
-        this.each(function (i, item) {
+        this.each((i, item) => {
             collection.push(item);
         });
         return collection;
-    };
-    ClientObjectCollection.prototype.some = function (iteratee) {
-        var _this = this;
+    }
+    some(iteratee) {
         var val = false;
-        this.each(function (i, item) {
-            if (iteratee(item, i, _this)) {
+        this.each((i, item) => {
+            if (iteratee(item, i, this)) {
                 val = true;
                 return false;
             }
         });
         return val;
-    };
-    ClientObjectCollection.prototype.every = function (iteratee) {
-        var _this = this;
+    }
+    every(iteratee) {
         var val = true;
         var hasitems = false;
-        this.each(function (i, item) {
+        this.each((i, item) => {
             hasitems = true;
-            if (!iteratee(item, i, _this)) {
+            if (!iteratee(item, i, this)) {
                 val = false;
                 return false;
             }
         });
         return hasitems && val;
-    };
-    ClientObjectCollection.prototype.find = function (iteratee) {
-        var _this = this;
+    }
+    find(iteratee) {
         var val = undefined;
-        this.each(function (i, item) {
-            if (iteratee(item, i, _this)) {
+        this.each((i, item) => {
+            if (iteratee(item, i, this)) {
                 val = item;
                 return false;
             }
         });
         return val;
-    };
-    ClientObjectCollection.prototype.reduce = function (iteratee, accumulator) {
-        var _this = this;
-        this.forEach(function (item, i) {
-            accumulator = iteratee(accumulator, item, i, _this);
+    }
+    reduce(iteratee, accumulator) {
+        this.forEach((item, i) => {
+            accumulator = iteratee(accumulator, item, i, this);
         });
         return accumulator;
-    };
-    ClientObjectCollection.prototype.groupBy = function (iteratee) {
-        return this.reduce(function (result, value) {
+    }
+    groupBy(iteratee) {
+        return this.reduce((result, value) => {
             var key = iteratee(value);
             if (Object.prototype.hasOwnProperty.call(result, key))
                 result[key].push(value);
@@ -80,9 +72,9 @@ var ClientObjectCollection = (function () {
                 result[key] = [value];
             return result;
         }, {});
-    };
-    ClientObjectCollection.prototype.matches = function (source) {
-        return function (item) {
+    }
+    matches(source) {
+        return item => {
             for (var prop in source) {
                 var compare_val = source[prop];
                 var value = null;
@@ -106,25 +98,24 @@ var ClientObjectCollection = (function () {
                 return value == compare_val;
             }
         };
-    };
-    ClientObjectCollection.prototype.property = function (props) {
+    }
+    property(props) {
         var properties = Array.isArray(props) ? props : [props];
-        return function (item) {
+        return item => {
             if (item instanceof SP.ListItem)
-                return properties.every(function (prop) { return item.get_item(prop); });
+                return properties.every(prop => item.get_item(prop));
             else
-                return properties.every(function (prop) { return item[prop]; });
+                return properties.every(prop => item[prop]);
         };
-    };
-    ClientObjectCollection.prototype.filter = function (predicate) {
-        var _this = this;
+    }
+    filter(predicate) {
         var predicateType = Object.prototype.toString.call(predicate);
         switch (predicateType) {
             case '[object Function]':
                 var items = [];
                 var filter = predicate;
-                this.forEach(function (item, i) {
-                    if (filter(item, i, _this))
+                this.forEach((item, i) => {
+                    if (filter(item, i, this))
                         items.push(item);
                 });
                 return items;
@@ -135,8 +126,8 @@ var ClientObjectCollection = (function () {
                 return this.filter(this.property(predicate));
         }
         return null;
-    };
-    ClientObjectCollection.prototype.firstOrDefault = function (iteratee) {
+    }
+    firstOrDefault(iteratee) {
         var index = 0, enumerator = this.getEnumerator();
         if (enumerator.moveNext()) {
             var current = enumerator.get_current();
@@ -148,54 +139,44 @@ var ClientObjectCollection = (function () {
                 return current;
         }
         return null;
-    };
-    return ClientObjectCollection;
-}());
+    }
+}
 var rejectionHandler;
-function registerUnhandledErrorHandler(handler) {
+export function registerUnhandledErrorHandler(handler) {
     rejectionHandler = handler;
 }
-exports.registerUnhandledErrorHandler = registerUnhandledErrorHandler;
-var ClientContext = (function () {
-    function ClientContext() {
-    }
-    ClientContext.prototype.executeQuery = function () {
+class ClientContext {
+    executeQuery() {
         var context = this;
-        return new Promise(function (resolve, reject) {
-            context.executeQueryAsync(function (sender, args) { resolve(args); }, function (sender, args) { reject(args); });
+        return new Promise((resolve, reject) => {
+            context.executeQueryAsync((sender, args) => { resolve(args); }, (sender, args) => { reject(args); });
         })
-            .catch(function (args) {
+            .catch((args) => {
             if (rejectionHandler)
                 return rejectionHandler(args);
             return args;
         });
-    };
-    return ClientContext;
-}());
-var List = (function () {
-    function List() {
     }
-    List.prototype.get_queryResult = function (queryText) {
+}
+class List {
+    get_queryResult(queryText) {
         var query = new SP.CamlQuery();
         query.set_viewXml(queryText || "<View><Query></Query></View>");
         return this.getItems(query);
-    };
-    return List;
-}());
-var UserCustomActionCollection = (function () {
-    function UserCustomActionCollection() {
     }
-    UserCustomActionCollection.prototype.ensure = function (custom_action) {
+}
+class UserCustomActionCollection {
+    ensure(custom_action) {
         var actions = this;
         var action;
         var context = actions.get_context();
         context.load(actions);
         return context.executeQuery()
-            .then(function () {
-            action = actions.filter(function (a) { return a.get_name() == custom_action.name || a.get_title() == custom_action.title; })[0];
+            .then(() => {
+            action = actions.filter(a => a.get_name() == custom_action.name || a.get_title() == custom_action.title)[0];
             if (!action)
                 action = actions.add();
-            Object.getOwnPropertyNames(custom_action).forEach(function (prop) {
+            Object.getOwnPropertyNames(custom_action).forEach(prop => {
                 switch (prop) {
                     case "commandUIExtension":
                         custom_action.commandUIExtension && action.set_commandUIExtension(custom_action.commandUIExtension);
@@ -242,45 +223,41 @@ var UserCustomActionCollection = (function () {
             context.load(action);
             return context.executeQuery();
         })
-            .then(function () {
+            .then(() => {
             return action.get_id();
         });
-    };
-    UserCustomActionCollection.prototype.remove = function (selector) {
+    }
+    remove(selector) {
         var actions = this;
         var context = actions.get_context();
         context.load(actions);
         return context.executeQuery()
-            .then(function () {
-            var action = actions.filter(function (a) { return selector(a); })[0];
+            .then(() => {
+            var action = actions.filter(a => selector(a))[0];
             if (action)
                 action.deleteObject();
             return context.executeQuery();
         });
-    };
-    UserCustomActionCollection.prototype.removeByTitle = function (title) {
-        return this.remove(function (action) { return action.get_title() == title; });
-    };
-    UserCustomActionCollection.prototype.removeByName = function (name) {
-        return this.remove(function (action) { return action.get_name() == name; });
-    };
-    UserCustomActionCollection.prototype.removeById = function (id) {
-        return this.remove(function (action) { return action.get_id().equals(id); });
-    };
-    return UserCustomActionCollection;
-}());
-var Guid = (function () {
-    function Guid() {
     }
-    Guid.generateGuid = function () {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    removeByTitle(title) {
+        return this.remove(action => action.get_title() == title);
+    }
+    removeByName(name) {
+        return this.remove(action => action.get_name() == name);
+    }
+    removeById(id) {
+        return this.remove(action => action.get_id().equals(id));
+    }
+}
+class Guid {
+    static generateGuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
-    };
+    }
     ;
-    return Guid;
-}());
+}
 var sodBaseAddress = null;
 var getSodBaseAddress = function () {
     if (sodBaseAddress)
@@ -300,7 +277,7 @@ var getSodBaseAddress = function () {
     return sodBaseAddress;
 };
 var sodDeps = {};
-function registerSodDependency(sod, dep) {
+export function registerSodDependency(sod, dep) {
     if (typeof dep === "string") {
         if (_v_dictSod[sod]) {
             SP.SOD.registerSodDep(sod, dep);
@@ -311,42 +288,39 @@ function registerSodDependency(sod, dep) {
         sodDeps[sod].push(dep);
     }
     else {
-        dep.map(function (d) { return registerSodDependency(sod, d); });
+        dep.map(d => registerSodDependency(sod, d));
     }
 }
-exports.registerSodDependency = registerSodDependency;
 function importer(sod) {
     if (typeof sod === "string") {
         var s = sod.toLowerCase();
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             if (!_v_dictSod[s] && s != 'sp.ribbon.js') {
                 SP.SOD.registerSod(s, getSodBaseAddress() + s);
                 for (var d = 0; sodDeps[s] && d < sodDeps[s].length; d++)
                     SP.SOD.registerSodDep(s, sodDeps[s][d]);
             }
-            SP.SOD.executeOrDelayUntilScriptLoaded(function () { resolve(); }, s);
+            SP.SOD.executeOrDelayUntilScriptLoaded(() => { resolve(); }, s);
             SP.SOD.executeFunc(s, null, null);
         });
     }
     else {
-        return Promise.all(sod.map(function (s) { return importSod(s); }));
+        return Promise.all(sod.map(s => importSod(s)));
     }
 }
 var spjs_loaded = false;
-function importSod(sod) {
-    if (sod === void 0) { sod = 'sp.js'; }
+export function importSod(sod = 'sp.js') {
     if (sod == 'sp.js' && !spjs_loaded) {
         return importer(sod)
-            .then(function () {
+            .then(() => {
             spjs_loaded = true;
             registerExtensions();
         });
     }
     return importer(sod);
 }
-exports.importSod = importSod;
 function merge(obj, extension) {
-    Object.getOwnPropertyNames(extension.prototype).forEach(function (name) {
+    Object.getOwnPropertyNames(extension.prototype).forEach(name => {
         if (name != "constructor")
             obj.prototype[name] = extension.prototype[name];
     });
@@ -359,11 +333,10 @@ function registerExtensions() {
     merge(SP.Guid, Guid);
     SP.SOD['import'] = importSod;
 }
-function register(log) {
+export function register(log) {
     return importSod('sp.js')
-        .then(function () {
+        .then(() => {
         if (log)
             console.log('SharePoint extensions loaded.');
     });
 }
-exports.register = register;
