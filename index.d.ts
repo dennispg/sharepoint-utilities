@@ -114,6 +114,10 @@ declare global {
             get_queryResult<T=any>(queryText?: string): ListItemCollection<T>;
         }
 
+        export interface UserCustomAction {
+            toObject(): CustomAction;
+        }
+
         export interface UserCustomActionCollection {
             ensure(custom_action: CustomAction): Promise<Guid>;
             remove(selector: (action: UserCustomAction) => boolean): Promise<ClientRequestSucceededEventArgs>;

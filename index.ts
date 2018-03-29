@@ -219,6 +219,26 @@ class ClientContext {
             return args;
         });
     }
+
+    listCustomActions() {
+        var context = this as any as SP.ClientContext;
+
+        var site = context.get_site();
+        var site_actions = site.get_userCustomActions();
+        context.load(site_actions);
+
+        var web = context.get_web();
+        var web_actions = web.get_userCustomActions();
+        context.load(web_actions);
+
+        return context.executeQuery()
+        .then(() => {
+            return {
+                web: web_actions.map(a => a.toObject()),
+                site: site_actions.map(a => a.toObject())
+            }
+        });
+    }
 }
 
 class List {
@@ -231,6 +251,31 @@ class List {
     }
 }
 
+class UserCustomAction {
+    toObject(): CustomAction {
+        var action = (this as any as SP.UserCustomAction);
+        return {
+            commandUIExtension: action.get_commandUIExtension(),
+            description: action.get_description(),
+            group: action.get_group(),
+            id: action.get_id(),
+            imageUrl: action.get_imageUrl(),
+            location: action.get_location(),
+            name: action.get_name(),
+            registrationId: action.get_registrationId(),
+            registrationType: action.get_registrationType(),
+            rights: action.get_rights(),
+            scope: action.get_scope(),
+            scriptBlock: action.get_scriptBlock(),
+            scriptSrc: action.get_scriptSrc(),
+            sequence: action.get_sequence(),
+            title: action.get_title(),
+            url: action.get_url(),
+            version: action.get_versionOfUserCustomAction()
+        }
+    }
+}
+
 export interface CustomAction {
     commandUIExtension?: string;
     description?: string;
@@ -238,6 +283,9 @@ export interface CustomAction {
     imageUrl?: string;
     location?: string;
     name?: string;
+    id?: SP.Guid;
+    scope?: SP.UserCustomActionScope;
+    version?: string;
     registrationId?: string;
     registrationType?: SP.UserCustomActionRegistrationType;
     rights?: SP.BasePermissions;
@@ -400,6 +448,7 @@ function registerExtensions() {
     merge(SP.ClientObjectCollection, ClientObjectCollection);
     merge(SP.ClientContext, ClientContext);
     merge(SP.List, List);
+    merge(SP.UserCustomAction, UserCustomAction);
     merge(SP["UserCustomActionCollection"], ClientObjectCollection);
     merge(SP["UserCustomActionCollection"], UserCustomActionCollection);
     merge(SP.Guid, Guid);
