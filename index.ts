@@ -206,7 +206,7 @@ export function registerUnhandledErrorHandler(handler: (args: SP.ClientRequestFa
 class ClientContext {
     /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
     executeQuery() {
-        var context = <SP.ClientRuntimeContext><any>this;
+        var context = this as any as SP.ClientContext;
         return new Promise<SP.ClientRequestSucceededEventArgs>((resolve, reject) => {
             context.executeQueryAsync(
                 (sender, args: SP.ClientRequestSucceededEventArgs) => { resolve(args); },
@@ -216,7 +216,7 @@ class ClientContext {
         .catch((args: SP.ClientRequestFailedEventArgs) => {
             if(rejectionHandler)
                 return rejectionHandler(args);
-            return args;
+            throw args;
         });
     }
 

@@ -154,7 +154,7 @@ class ClientContext {
             .catch((args) => {
             if (rejectionHandler)
                 return rejectionHandler(args);
-            return args;
+            throw args;
         });
     }
     listCustomActions() {

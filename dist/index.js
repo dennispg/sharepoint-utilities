@@ -167,7 +167,7 @@ var ClientContext = (function () {
             .catch(function (args) {
             if (rejectionHandler)
                 return rejectionHandler(args);
-            return args;
+            throw args;
         });
     };
     ClientContext.prototype.listCustomActions = function () {
