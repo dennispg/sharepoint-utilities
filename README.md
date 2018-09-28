@@ -11,6 +11,16 @@ Usage
 ```typescript
 import {register} from 'sharepoint-utilities';
 register().then(() => {
+    SP.SOD.import(['sp.js']).then(() => {
+        ...
+    });
+});
+
+// or
+
+import {importSod} from 'sharepoint-utilities';
+importSod(['sp.js']).then(() => {
+    ...
 });
 ```
 

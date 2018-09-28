@@ -1,6 +1,8 @@
 type iterateeFunction<T> = (item?: T, index?: number, collection?: IEnumerable<T>) => boolean | void;
 type filterPredicate<T> = iterateeFunction<T> | {[prop: string]:any} | string | string[];
 
+declare function GetUrlKeyValue(keyName: string, bNoDecode?: boolean, url?: string, bCaseInsensitive?: boolean): string;
+
 declare interface IEnumerable<T> {
     getEnumerator(): IEnumerator<T>;
 
