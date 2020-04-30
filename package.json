@@ -23,8 +23,8 @@
     "@types/sharepoint": "^2016.1.8"
   },
   "devDependencies": {
-    "@types/node": "^13.7.7",
-    "typedoc": "^0.16.11",
+    "@types/node": "^13.13.4",
+    "typedoc": "^0.17.6",
     "typedoc-plugin-markdown": "^2.2.17",
     "typescript": "^3.8.3"
   }
