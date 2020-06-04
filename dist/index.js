@@ -81,6 +81,15 @@ var ClientObjectCollection = (function () {
             return result;
         }, {});
     };
+    ClientObjectCollection.prototype.keyBy = function (iteratee) {
+        var index = -1, enumerator = this.getEnumerator(), result = {};
+        while (enumerator.moveNext()) {
+            var item = enumerator.get_current();
+            var key = iteratee(item);
+            result[key] = item;
+        }
+        return result;
+    };
     ClientObjectCollection.prototype.matches = function (source) {
         return function (item) {
             for (var prop in source) {
@@ -378,14 +387,13 @@ function importer(sod) {
 var spjs_loaded = false;
 function importSod(sod) {
     if (sod === void 0) { sod = 'sp.js'; }
-    if (sod == 'sp.js' && !spjs_loaded) {
-        return importer(sod)
-            .then(function () {
+    return importer(sod)
+        .then(function () {
+        if (sod == 'sp.js' && !spjs_loaded) {
             spjs_loaded = true;
             registerExtensions();
-        });
-    }
-    return importer(sod);
+        }
+    });
 }
 exports.importSod = importSod;
 function merge(obj, extension) {

@@ -108,6 +108,13 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         return accumulator;
     }
 
+    /**
+     * Creates an object composed of keys generated from the results of running each element of collection thru iteratee.
+     * The order of grouped values is determined by the order they occur in collection.
+     * The corresponding value of each key is an array of elements responsible for generating the key.
+     *
+     * @param iteratee The function invoked per iteration.
+     * @return Returns the composed aggregate object. */
     groupBy?(iteratee?: (value: T, index?: number, collection?: IEnumerable<T>) => string | number): {[group:string]:T[]} {
         return this.reduce((result, value) => {
             var key = iteratee(value)
@@ -117,6 +124,22 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
                 result[key] = [value]
             return result
         }, {})
+    }
+
+    /**
+     * Creates an object composed of keys generated from the results of running each element of collection thru iteratee.
+     * The corresponding value of each key is the last element responsible for generating the key.
+     *
+     * @param iteratee The function invoked per iteration.
+     * @return Returns the composed aggregate object. */
+    keyBy?<TResult extends string | number | symbol>(iteratee: (item?: T) => TResult): Record<TResult, T> {
+        var index = -1, enumerator = this.getEnumerator(), result = {} as Record<TResult, T>;
+        while (enumerator.moveNext()) {
+            let item = enumerator.get_current();
+            let key = iteratee(item);
+            result[key] = item;
+        }
+        return result;
     }
 
     matches?<T>(source: {[prop: string]:any}): iterateeFunction<T> {
@@ -427,14 +450,13 @@ function importer(sod: string | string[]): Promise<any> {
 
 var spjs_loaded = false;
 export function importSod(sod: string | string[] = 'sp.js'): Promise<any> {
-    if(sod == 'sp.js' && !spjs_loaded) {
-        return importer(sod)
-        .then(() => {
+    return importer(sod)
+    .then(() => {
+        if(sod == 'sp.js' && !spjs_loaded) {
             spjs_loaded = true;
             registerExtensions();
-        })
-    }
-    return importer(sod);
+        }
+    });
 }
 
 function merge(obj, extension) {

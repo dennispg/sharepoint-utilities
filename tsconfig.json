@@ -6,6 +6,7 @@
             "dom",
             "es6"
         ],
+        "downlevelIteration": true,
         "outDir": "dist",
         "removeComments": true
     },

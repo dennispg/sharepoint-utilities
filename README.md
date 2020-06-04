@@ -52,6 +52,7 @@ Reference
 -   [`IEnumerable<T>.firstOrDefault`](#ienumerablefirstordefault)
 -   [`IEnumerable<T>.forEach`](#ienumerableforeach)
 -   [`IEnumerable<T>.groupBy`](#ienumerablegroupby)
+-   [`IEnumerable<T>.keyBy`](#ienumerablekeyby)
 -   [`IEnumerable<T>.map`](#ienumerablemap)
 -   [`IEnumerable<T>.reduce`](#ienumerablereduce)
 -   [`IEnumerable<T>.some`](#ienumerablesome)
@@ -231,7 +232,10 @@ items.each(function(item, i) {
 ```
 
 ## IEnumerable<T>.groupBy
-Creates an object composed of keys generated from the results of running each element of `collection` thru `iteratee`. The order of grouped values is determined by the order they occur in `collection`. The corresponding value of each key is an array of elements responsible for generating the key. The iteratee is invoked with three arguments: (value, index, collection).
+Creates an object composed of keys generated from the results of running each element of `collection` thru `iteratee`.
+The order of grouped values is determined by the order they occur in `collection`.
+The corresponding value of each key is an array of elements responsible for generating the key.
+The iteratee is invoked with one argument: (value).
 
 **Example**
 ```typescript
@@ -240,6 +244,20 @@ var groups = items.groupBy(function(item) {
     return item.get_item('ContentType');
 });
 // => { 'Document': [item1, item2], 'Page': [item3, item4] }
+```
+
+## IEnumerable<T>.keyBy
+Creates an object composed of keys generated from the results of running each element of collection thru iteratee.
+The corresponding value of each key is the last element responsible for generating the key.
+The iteratee is invoked with one argument: (value).
+
+**Example**
+```typescript
+let items = list.getItems();
+var groups = items.keyBy(function(item) {
+    return item.get_item('ContentType');
+});
+// => { 'Document': item1, 'Page': item2 }
 ```
 
 ## IEnumerable<T>.map
